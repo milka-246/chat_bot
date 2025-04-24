@@ -2,7 +2,7 @@ version: "3.1"
 
 intents:
   - ask_about_task
-  - affirm
+  - iaffirm
   - deny
 
 entities:
@@ -29,34 +29,50 @@ entities:
   - task_number_19
   - task_number_20
   - task_number_21
+  - affirm
 
 slots:
-  task_number:
+  task_number:                        #сущность task_number - номер задания взятый из конструкций: задание 5, задача 7
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: task_number
 
-  suggested_task_number:
+  suggested_task_number:              #номер задания, определённый по формулировке задания (с помощью кастомных actions)
     type: text
     influence_conversation: true
     mappings:
       - type: custom
 
-  task_topic:
+  task_topic:                          #сущность task_topic - темы заданий егэ по информатике (1-2 слова)
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: task_topic
 
-  task_detail:
+  task_detail:                         #сущность task_detail - что в задании нужно сделать ГЛАГОЛ (1-2 слова)
     type: text
+    initial_value: None
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: task_detail
+
+  wait_affirm:                        #флаг указывающий на то, что мы ждём подтверждение: предложенное задание определено из запроса верно
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  notreset_slots:                        #флаг указывающий на то, что мы можем очистиль слоты (забыть контекст)
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
 
 responses:
   utter_ask_task_number:
@@ -71,8 +87,8 @@ responses:
 actions:
   - action_identify_task_number
   - action_confirm_suggested_task
-  - action_provide_solution
   - action_reset_slots
+  - action_processing_affirm
 
 session_config:
   session_expiration_time: 60

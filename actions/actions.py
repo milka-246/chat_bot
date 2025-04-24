@@ -28,6 +28,15 @@ def normalize_words(value):
 
     return [morph.parse(word)[0].normal_form for word in value if isinstance(word, str)]
 
+class ActionProcessingAffirm(Action):
+    def name(self) -> str:
+        return "action_processing_affirm"
+    def run(self, dispatcher, tracker, domain):
+        if tracker.get_slot("wait_affirm"):  # Упростили проверку
+            if any(e["entity"] == "affirm" for e in tracker.latest_message.get("entities", [])):
+                suggested = tracker.get_slot("suggested_task_number")  # Исправлено: было suggested_task_number
+                dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
+        return [SlotSet("wait_affirm", False), SlotSet("notreset_slots", False)]
 
 
 class ActionResetSlots(Action):
@@ -35,13 +44,14 @@ class ActionResetSlots(Action):
         return "action_reset_slots"
 
     def run(self, dispatcher, tracker, domain):
-        # Сбрасываем все слоты
-        return [
-            SlotSet("task_number", None),
-            SlotSet("task_topic", None),
-            SlotSet("task_detail", None),
-            SlotSet("suggested_task_number", None)
-        ]
+        if not tracker.get_slot("notreset_slots"):
+#            dispatcher.utter_message(text="Сбрасываем слоты")
+            return [
+                SlotSet(slot, None)
+                for slot in ["task_number", "task_topic", "task_detail", 
+                           "suggested_task_number", "wait_affirm"]
+            ]
+        return [SlotSet("notreset_slots", None)]
 
 # Словарь для числительных
 numerals_dict = {
@@ -313,6 +323,8 @@ class ActionIdentifyTaskNumber(Action):
 
         task_detail = tracker.get_slot("task_detail")
         task_topic = tracker.get_slot("task_topic")
+        #SlotSet("notreset_slots", None)                                    #По умолчанию None - стираем
+        #SlotSet("wait_affirm", None)                                        #По умолчанию None - стираем
 
         normalized_detail = normalize_words(task_detail if isinstance(task_detail, list) else [task_detail]) if task_detail else []
         normalized_topic = normalize_words(task_topic if isinstance(task_topic, list) else [task_topic]) if task_topic else []
@@ -339,13 +351,11 @@ class ActionIdentifyTaskNumber(Action):
                 return [SlotSet("task_number", int_task_number)]
             elif len(top_matches) > 0 and int_task_number not in top_matches:
                 options = ", ".join(str(n) for n in top_matches)
-                dispatcher.utter_message(
-                    text=f"Вы указали номер {int_task_number}, но по описанию похоже на задание(я) {options}. Это оно?")
-                return [SlotSet("suggested_task_number", top_matches[0])]  # Сохраняем один из вариантов
-
+                dispatcher.utter_message(text=f"Вы указали номер {int_task_number}, но по описанию похоже на задание(я) {options}. Это оно?")
+                return [SlotSet("suggested_task_number", top_matches[0])]                                                   # Сохраняем наиболее вероятный вариант
         if int_task_number is None and len(top_matches) == 1:
             dispatcher.utter_message(text=f"Похоже, вы имеете в виду задание номер {top_matches[0]}. Подтвердите, пожалуйста.")
-            return [SlotSet("suggested_task_number", top_matches[0])]
+            return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", 1), SlotSet("notreset_slots", 1)]
 
         if int_task_number is None and len(top_matches) > 1:
             options = ", ".join(str(n) for n in top_matches)
