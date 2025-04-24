@@ -2,3 +2,7 @@
 venv/
 # Игнорировать папку models/
 models/
+# Игнорировать кэш в rasa
+.rasa/cache
+# Игнорировать actions
+actions/__pycache__/
