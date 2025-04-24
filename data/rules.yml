@@ -1,0 +1,9 @@
+version: "3.1"
+
+rules:
+
+- rule: Пользователь спрашивает о задании
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - action: action_reset_slots
