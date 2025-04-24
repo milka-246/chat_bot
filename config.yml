@@ -1,0 +1,50 @@
+language: ru
+
+pipeline:
+- name: WhitespaceTokenizer
+  intent_tokenization_flag: false
+  token_pattern: None
+
+- name: RegexFeaturizer
+  use_word_boundaries: true
+  case_sensitive: false
+
+- name: LexicalSyntacticFeaturizer
+
+- name: CountVectorsFeaturizer
+  analyzer: "word"
+  min_ngram: 1
+  max_ngram: 1
+
+- name: CountVectorsFeaturizer
+  analyzer: "char_wb"
+  min_ngram: 1
+  max_ngram: 4
+
+- name: DIETClassifier
+  epochs: 300
+  learning_rate: 0.002
+  embedding_dimension: 50
+  constrain_similarities: true
+  entity_recognition: true
+  use_masked_language_model: false
+  random_seed: 42
+
+- name: EntitySynonymMapper
+
+- name: ResponseSelector
+  epochs: 100
+  retrieval_intent: "faq"
+
+- name: FallbackClassifier
+  threshold: 0.3
+  ambiguity_threshold: 0.1
+
+policies:
+- name: MemoizationPolicy
+- name: RulePolicy
+- name: TEDPolicy
+  max_history: 10
+  epochs: 100
+
+assistant_id: 20250420-184000-watery-circuit
