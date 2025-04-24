@@ -5,6 +5,7 @@ nlu:
 - intent: affirm
   examples: |
     - да
+    - так точно
     - конечно
     - точно
     - верно
