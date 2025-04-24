@@ -2,7 +2,12 @@
 venv/
 # Игнорировать папку models/
 models/
-# Игнорировать actions
-actions/__pycache__/
 # Игнорировать кэш в rasa
 .rasa/cache
+# Игнорировать все файлы .pyc (скомпилированные Python-файлы)
+*.pyc
+# Игнорировать все папки __pycache__ (кеш Python)
+__pycache__/
+# Дополнительно: игнорируем .pyo и .pyd (оптимизированные и бинарные файлы Python)
+*.pyo
+*.pyd
