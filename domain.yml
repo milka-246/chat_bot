@@ -30,6 +30,7 @@ entities:
   - task_number_20
   - task_number_21
   - affirm
+  - disagree
 
 slots:
   task_number:                        #сущность task_number - номер задания взятый из конструкций: задание 5, задача 7
