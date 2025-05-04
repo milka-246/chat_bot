@@ -55,7 +55,6 @@ slots:
 
   task_detail:                         #сущность task_detail - что в задании нужно сделать ГЛАГОЛ (1-2 слова)
     type: text
-    initial_value: None
     influence_conversation: true
     mappings:
       - type: from_entity
@@ -87,7 +86,6 @@ responses:
 
 actions:
   - action_identify_task_number
-  - action_confirm_suggested_task
   - action_reset_slots
   - action_processing_affirm
 

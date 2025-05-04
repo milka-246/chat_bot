@@ -1,1 +1,20 @@
 version: "3.1"
+stories:
+- story: Пользователь спрашивает о задаче (с подтверждением) и подтверждает
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - intent: iaffirm
+    - action: action_processing_affirm
+    - action: action_reset_slots
+- story: Пользователь спрашивает о задаче (с подтверждением) и отрицает
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - intent: disagree
+    - action: action_reset_slots
+- story: Пользователь спрашивает о задаче (без подтверждения)
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - action: action_reset_slots

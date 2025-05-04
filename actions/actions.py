@@ -323,8 +323,6 @@ class ActionIdentifyTaskNumber(Action):
 
         task_detail = tracker.get_slot("task_detail")
         task_topic = tracker.get_slot("task_topic")
-        #SlotSet("notreset_slots", None)                                    #По умолчанию None - стираем
-        #SlotSet("wait_affirm", None)                                        #По умолчанию None - стираем
 
         normalized_detail = normalize_words(task_detail if isinstance(task_detail, list) else [task_detail]) if task_detail else []
         normalized_topic = normalize_words(task_topic if isinstance(task_topic, list) else [task_topic]) if task_topic else []
@@ -340,7 +338,6 @@ class ActionIdentifyTaskNumber(Action):
 
         dispatcher.utter_message(text=f"Распозналось: number: {task_number}, topic: {task_topic}, detail: {task_detail}, flags: {flag_entities}")
         dispatcher.utter_message(text=f"Наиболее подходящие задания по описанию: {top_matches}")
-
         if int_task_number is not None and not (task_detail or task_topic or flag_entities):
             dispatcher.utter_message(text=f"Вы указали задание номер {int_task_number}.")
             return [SlotSet("task_number", int_task_number)]
@@ -362,28 +359,6 @@ class ActionIdentifyTaskNumber(Action):
             dispatcher.utter_message(
                 text=f"По описанию подходит несколько заданий: {options}. Уточните, пожалуйста, какое вы имеете в виду.")
             return [SlotSet("suggested_task_number", top_matches[0])]
-
-        dispatcher.utter_message(response="utter_cannot_understand_task")
-        return []
-
-
-class ActionConfirmSuggestedTask(Action):
-    def name(self) -> Text:
-        return "action_confirm_suggested_task"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        suggested = tracker.get_slot("suggested_task_number")
-
-        if tracker.latest_message.get("intent", {}).get("name") == "affirm" and suggested:
-            dispatcher.utter_message(text=f"Отлично, работаем с заданием номер {suggested}.")
-            return [SlotSet("task_number", suggested), SlotSet("suggested_task_number", None)]
-
-        elif tracker.latest_message.get("intent", {}).get("name") == "deny":
-            dispatcher.utter_message(response="utter_ask_task_disambiguation")
-            return [SlotSet("suggested_task_number", None)]
 
         dispatcher.utter_message(response="utter_cannot_understand_task")
         return []
