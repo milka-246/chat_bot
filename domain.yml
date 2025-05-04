@@ -5,6 +5,15 @@ intents:
   - iaffirm
   - deny
   - disagree
+  - ask_show_rating
+  - ask_personal_account
+  - ask_show_courses
+  - ask_show_news
+  - ask_privacy_policy
+  - ask_contacts
+  - ask_parent_account
+  - ask_reviews
+  - ask_personal_stats
 
 entities:
   - task_number
@@ -75,6 +84,37 @@ slots:
       - type: custom
 
 responses:
+
+  utter_ask_show_rating:
+    - text: "Ссылка на рейтинг"
+
+  utter_ask_personal_account:
+    - text: "Ссылка на личный кабинет"
+
+  utter_ask_show_courses:
+    - text: "Ссылка на курсы"
+
+  utter_ask_show_news:
+    - text: "Ссылка на новостную ленту"
+
+  utter_ask_privacy_policy:
+    - text: "Ссылка на политику конфиденциальности"
+
+  utter_ask_contacts:
+    - text: "Ссылка на контактные данные"
+
+  utter_ask_parent_account:
+    - text: "Ссылка на аккаунт родителей"
+
+  utter_ask_reviews:
+    - text: "Ссылка на отзывы"
+
+  utter_ask_personal_stats:
+    - text: "Ссылка на статистику"
+
+  utter_ask_partners:
+    - text: "Ссылка на партнёров"
+
   utter_ask_task_number:
     - text: "Какой номер задания тебя интересует?"
 
