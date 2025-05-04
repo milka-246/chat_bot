@@ -14,6 +14,7 @@ intents:
   - ask_parent_account
   - ask_reviews
   - ask_personal_stats
+  - ask_partners
 
 entities:
   - task_number
