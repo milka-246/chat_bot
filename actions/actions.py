@@ -32,10 +32,10 @@ class ActionProcessingAffirm(Action):
     def name(self) -> str:
         return "action_processing_affirm"
     def run(self, dispatcher, tracker, domain):
-        if tracker.get_slot("wait_affirm"):  # Упростили проверку
-            if any(e["entity"] == "affirm" for e in tracker.latest_message.get("entities", [])):
-                suggested = tracker.get_slot("suggested_task_number")  # Исправлено: было suggested_task_number
-                dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
+        #if tracker.get_slot("wait_affirm"):  # Упростили проверку
+        if any(e["entity"] == "affirm" for e in tracker.latest_message.get("entities", [])):
+            suggested = tracker.get_slot("suggested_task_number")
+            dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
         return [SlotSet("wait_affirm", False), SlotSet("notreset_slots", False)]
 
 

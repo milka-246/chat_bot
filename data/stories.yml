@@ -4,6 +4,9 @@ stories:
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
+    - slot_was_set:
+        - suggested_task_number: True
+        - task_number: null
     - intent: iaffirm
     - action: action_processing_affirm
     - action: action_reset_slots
@@ -11,10 +14,38 @@ stories:
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
+    - slot_was_set:
+        - suggested_task_number: True
+        - task_number: null
     - intent: disagree
     - action: action_reset_slots
+    - action: utter_cannot_understand_task
+- story: Пользователь спрашивает о задаче (без подтверждения) и подтверждает
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - slot_was_set:
+        - suggested_task_number: null
+        - task_number: True
+    - intent: iaffirm
+    - action: action_reset_slots
+
+- story: Пользователь спрашивает о задаче (без подтверждения) и отрицает
+  steps:
+    - intent: ask_about_task
+    - action: action_identify_task_number
+    - slot_was_set:
+        - suggested_task_number: null
+        - task_number: True
+    - intent: disagree
+    - action: action_reset_slots
+    - action: utter_cannot_understand_task
+
 - story: Пользователь спрашивает о задаче (без подтверждения)
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
+    - slot_was_set:
+        - suggested_task_number: null
+        - task_number: True
     - action: action_reset_slots
