@@ -26,9 +26,15 @@ entities:
   - conditional_logic
   - table_truth
   - uniformity
+  - task_number_3
+  - task_number_6
+  - task_number_9
   - task_number_19
   - task_number_20
   - task_number_21
+  - task_number_24
+  - task_number_26
+  - task_number_27
   - affirm
 
 slots:
@@ -73,6 +79,48 @@ slots:
     influence_conversation: true
     mappings:
       - type: custom
+
+  task_number_3: 
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_3
+
+  task_number_6: 
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_6
+
+  task_number_9:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_9
+
+  task_number_24:
+      type: text
+      influence_conversation: true
+      mappings:
+        - type: from_entity
+          entity: task_number_24
+
+  task_number_26:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_26
+
+  task_number_27:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_26
 
 responses:
   utter_ask_task_number:
