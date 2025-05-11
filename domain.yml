@@ -29,6 +29,9 @@ entities:
   - task_number_19
   - task_number_20
   - task_number_21
+  - task_number_12
+  - task_number_22
+  - task_number_25
   - affirm
 
 slots:
