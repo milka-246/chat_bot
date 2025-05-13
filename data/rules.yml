@@ -51,3 +51,17 @@ rules:
       - intent: ask_partners
       - action: utter_ask_partners
 
+  - rule: Запрос информации о нас
+    steps:
+      - intent: ask_about_section
+      - action: utter_ask_about_section
+
+  - rule: Восстановление пароля
+    steps:
+      - intent: request_password_recovery
+      - action: utter_request_password_recovery
+  - rule: Восстановление пароля
+    steps:
+      - intent: out_of_scope
+      - action: action_default_fallback
+  

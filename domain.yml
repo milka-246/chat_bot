@@ -3,7 +3,6 @@ version: "3.1"
 intents:
   - ask_about_task
   - iaffirm
-  - deny
   - disagree
   - ask_show_rating
   - ask_personal_account
@@ -15,6 +14,9 @@ intents:
   - ask_reviews
   - ask_personal_stats
   - ask_partners
+  - ask_about_section
+  - request_password_recovery
+  - out_of_scope
 
 entities:
   - task_number
@@ -41,6 +43,19 @@ entities:
   - task_number_20
   - task_number_21
   - affirm
+  - dis
+  - rang
+  - personal
+  - course
+  - news
+  - privacy
+  - contacts
+  - parent
+  - reviews
+  - stats
+  - partners
+  - sectiong
+  - recovery_action
 
 slots:
   task_number:                        #сущность task_number - номер задания взятый из конструкций: задание 5, задача 7
@@ -70,13 +85,13 @@ slots:
       - type: from_entity
         entity: task_detail
 
-  wait_affirm:                        #флаг указывающий на то, что мы ждём подтверждение: предложенное задание определено из запроса верно
+  wait_affirm:
     type: bool
     initial_value: false
-    influence_conversation: true
+    influence_conversation: true  # влияет на диалог, если нужно
     mappings:
-      - type: custom
-
+      - type: custom  # ⚠️ Разрешает изменение ТОЛЬКО через `SlotSet` в действиях
+  
   notreset_slots:                        #флаг указывающий на то, что мы можем очистиль слоты (забыть контекст)
     type: bool
     initial_value: false
@@ -115,12 +130,24 @@ responses:
 
   utter_ask_partners:
     - text: "Ссылка на партнёров"
+  
+  utter_ask_about_section:
+    - text: "Раздел О нас"
+
+  utter_request_password_recovery:
+    - text: "Восстановление пароля"
 
   utter_ask_task_number:
     - text: "Какой номер задания тебя интересует?"
 
   utter_cannot_understand_task:
     - text: "Я пока не понял, о каком задании идёт речь. Попробуй уточнить номер или тему."
+
+  utter_iaffirm:
+    - text: "Я пока не понял, что вы подтверждаете."
+
+  utter_disagree:
+    - text: "Я пока не понял, что вы отрицаете."
 
   utter_ask_task_disambiguation:
     - text: "Тогда скажи, пожалуйста, какой номер задания ты имел в виду?"
@@ -129,6 +156,7 @@ actions:
   - action_identify_task_number
   - action_reset_slots
   - action_processing_affirm
+  - action_default_fallback
 
 session_config:
   session_expiration_time: 60
