@@ -6,6 +6,20 @@ import re
 from pymorphy2 import MorphAnalyzer
 
 
+from rasa_sdk import Action
+from rasa_sdk.events import SlotSet
+
+class ActionDefaultFallback(Action):
+    def name(self) -> str:
+        return "action_default_fallback"
+
+    def run(self, dispatcher, tracker, domain):
+        # Отправляем сообщение пользователю, если не удается распознать интент
+        dispatcher.utter_message(text="Извините, я не смог вас понять. Могу помочь чем-то другим?")
+        return []
+
+
+
 morph = MorphAnalyzer()
 
 import re
@@ -32,9 +46,11 @@ class ActionProcessingAffirm(Action):
     def name(self) -> str:
         return "action_processing_affirm"
     def run(self, dispatcher, tracker, domain):
+        #wait = tracker.get_slot("wait_affirm")
+        #dispatcher.utter_message(text=f"Ждём ли {wait}.")
         if tracker.get_slot("wait_affirm"):  # Упростили проверку
             if any(e["entity"] == "affirm" for e in tracker.latest_message.get("entities", [])):
-                suggested = tracker.get_slot("suggested_task_number")  # Исправлено: было suggested_task_number
+                suggested = tracker.get_slot("suggested_task_number")
                 dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
         return [SlotSet("wait_affirm", False), SlotSet("notreset_slots", False)]
 
@@ -45,13 +61,16 @@ class ActionResetSlots(Action):
 
     def run(self, dispatcher, tracker, domain):
         if not tracker.get_slot("notreset_slots"):
-#            dispatcher.utter_message(text="Сбрасываем слоты")
+            #dispatcher.utter_message(text="Сбрасываем слоты")
             return [
                 SlotSet(slot, None)
-                for slot in ["task_number", "task_topic", "task_detail", 
-                           "suggested_task_number", "wait_affirm"]
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
             ]
-        return [SlotSet("notreset_slots", None)]
+        else:
+            return [SlotSet("notreset_slots", False)]
 
 # Словарь для числительных
 numerals_dict = {
@@ -76,20 +95,26 @@ numerals_dict = {
 
 
 def extract_task_number(text):
-    # Попытка найти числительное в строке
-    text = text.lower()  # Приводим текст к нижнему регистру
-
-    # Проверка на наличие числительных
+    text = text.lower().strip()  # Приводим к нижнему регистру и убираем пробелы
+    
+    # 1. Проверка на числительные (первое, второе...)
     for numeral, number in numerals_dict.items():
         if numeral in text:
             return number
-
-    # Проверка на наличие чисел в текстах типа "номер 7"
-    match = re.search(r"(номер|задача|задание)\s*(\d+)", text)
+    
+    # 2. Проверка форматов:
+    # - "задание 19"
+    # - "19 задание"
+    # - "номер 19"
+    # - "задача 19"
+    match = re.search(r"(?:номер|задача|задание)\s*(\d+)|(\d+)\s*(?:номер|задача|задание)", text)
     if match:
-        return int(match.group(2))  # Возвращаем число
-
-    # Если числовых данных нет, возвращаем None
+        return int(match.group(1) or match.group(2))  # Возвращаем найденное число
+    
+    # 3. Проверка на просто число (только если оно отдельно)
+    if re.fullmatch(r"\d+", text.strip()):
+        return int(text.strip())
+    
     return None
 
 
@@ -321,8 +346,6 @@ class ActionIdentifyTaskNumber(Action):
 
         task_detail = tracker.get_slot("task_detail")
         task_topic = tracker.get_slot("task_topic")
-        #SlotSet("notreset_slots", None)                                    #По умолчанию None - стираем
-        #SlotSet("wait_affirm", None)                                        #По умолчанию None - стираем
 
         normalized_detail = normalize_words(task_detail if isinstance(task_detail, list) else [task_detail]) if task_detail else []
         normalized_topic = normalize_words(task_topic if isinstance(task_topic, list) else [task_topic]) if task_topic else []
@@ -338,7 +361,7 @@ class ActionIdentifyTaskNumber(Action):
 
         dispatcher.utter_message(text=f"Распозналось: number: {task_number}, topic: {task_topic}, detail: {task_detail}, flags: {flag_entities}")
         dispatcher.utter_message(text=f"Наиболее подходящие задания по описанию: {top_matches}")
-
+        dispatcher.utter_message(text=f"Распозналось {int_task_number}.")
         if int_task_number is not None and not (task_detail or task_topic or flag_entities):
             dispatcher.utter_message(text=f"Вы указали задание номер {int_task_number}.")
             return [SlotSet("task_number", int_task_number)]
@@ -353,35 +376,14 @@ class ActionIdentifyTaskNumber(Action):
                 return [SlotSet("suggested_task_number", top_matches[0])]                                                   # Сохраняем наиболее вероятный вариант
         if int_task_number is None and len(top_matches) == 1:
             dispatcher.utter_message(text=f"Похоже, вы имеете в виду задание номер {top_matches[0]}. Подтвердите, пожалуйста.")
-            return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", 1), SlotSet("notreset_slots", 1)]
+            #dispatcher.utter_message(text="Я тут")
+            return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", True), SlotSet("notreset_slots", True)]
 
         if int_task_number is None and len(top_matches) > 1:
             options = ", ".join(str(n) for n in top_matches)
             dispatcher.utter_message(
                 text=f"По описанию подходит несколько заданий: {options}. Уточните, пожалуйста, какое вы имеете в виду.")
             return [SlotSet("suggested_task_number", top_matches[0])]
-
-        dispatcher.utter_message(response="utter_cannot_understand_task")
-        return []
-
-
-class ActionConfirmSuggestedTask(Action):
-    def name(self) -> Text:
-        return "action_confirm_suggested_task"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        suggested = tracker.get_slot("suggested_task_number")
-
-        if tracker.latest_message.get("intent", {}).get("name") == "affirm" and suggested:
-            dispatcher.utter_message(text=f"Отлично, работаем с заданием номер {suggested}.")
-            return [SlotSet("task_number", suggested), SlotSet("suggested_task_number", None)]
-
-        elif tracker.latest_message.get("intent", {}).get("name") == "deny":
-            dispatcher.utter_message(response="utter_ask_task_disambiguation")
-            return [SlotSet("suggested_task_number", None)]
 
         dispatcher.utter_message(response="utter_cannot_understand_task")
         return []
