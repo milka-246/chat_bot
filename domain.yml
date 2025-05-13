@@ -39,9 +39,22 @@ entities:
   - conditional_logic
   - table_truth
   - uniformity
+<<<<<<< HEAD
+  - task_number_4
+  - task_number_5
+  - task_number_8
+  - task_number_17
+  - task_number_18
+=======
+  - task_number_1
+  - task_number_6
+  - task_number_7
+  - task_number_11
+>>>>>>> ca23e9c3d9c8daa2819d1c25dce6ab7fd3fe1a47
   - task_number_19
   - task_number_20
   - task_number_21
+  - task_number_23
   - affirm
   - dis
   - rang
