@@ -1,15 +1,67 @@
 version: "3.1"
-
 rules:
 
-- rule: Пользователь спрашивает о задании
-  steps:
-    - intent: ask_about_task
-    - action: action_identify_task_number
-    - action: action_reset_slots
+  - rule: Запрос Рейтинга
+    steps:
+      - intent: ask_show_rating
+      - action: utter_ask_show_rating
 
-- rule: Пользователь выражает согласие
-  steps:
-    - intent: iaffirm
-    - action: action_processing_affirm
-    - action: action_reset_slots
+  - rule: Запрос Личного кабинета
+    steps:
+      - intent: ask_personal_account
+      - action: utter_ask_personal_account
+
+  - rule: Запрос Курсов
+    steps:
+      - intent: ask_show_courses
+      - action: utter_ask_show_courses
+
+  - rule: Запрос Новостной ленты
+    steps:
+      - intent: ask_show_news
+      - action: utter_ask_show_news
+
+  - rule: Запрос Политики конфиденциальности
+    steps:
+      - intent: ask_privacy_policy
+      - action: utter_ask_privacy_policy
+
+  - rule: Запрос Контактных данных
+    steps:
+      - intent: ask_contacts
+      - action: utter_ask_contacts
+
+  - rule: Запрос Родительского аккаунта
+    steps:
+      - intent: ask_parent_account
+      - action: utter_ask_parent_account
+
+  - rule: Запрос Контактных данных
+    steps:
+      - intent: ask_reviews
+      - action: utter_ask_reviews
+
+  - rule: Запрос Статистики
+    steps:
+      - intent: ask_personal_stats
+      - action: utter_ask_personal_stats
+
+  - rule: Запрос Информации о партнёрах
+    steps:
+      - intent: ask_partners
+      - action: utter_ask_partners
+
+  - rule: Запрос информации о нас
+    steps:
+      - intent: ask_about_section
+      - action: utter_ask_about_section
+
+  - rule: Восстановление пароля
+    steps:
+      - intent: request_password_recovery
+      - action: utter_request_password_recovery
+  - rule: Восстановление пароля
+    steps:
+      - intent: out_of_scope
+      - action: action_default_fallback
+  

@@ -6,6 +6,20 @@ import re
 from pymorphy2 import MorphAnalyzer
 
 
+from rasa_sdk import Action
+from rasa_sdk.events import SlotSet
+
+class ActionDefaultFallback(Action):
+    def name(self) -> str:
+        return "action_default_fallback"
+
+    def run(self, dispatcher, tracker, domain):
+        # Отправляем сообщение пользователю, если не удается распознать интент
+        dispatcher.utter_message(text="Извините, я не смог вас понять. Могу помочь чем-то другим?")
+        return []
+
+
+
 morph = MorphAnalyzer()
 
 import re
@@ -32,9 +46,11 @@ class ActionProcessingAffirm(Action):
     def name(self) -> str:
         return "action_processing_affirm"
     def run(self, dispatcher, tracker, domain):
+        #wait = tracker.get_slot("wait_affirm")
+        #dispatcher.utter_message(text=f"Ждём ли {wait}.")
         if tracker.get_slot("wait_affirm"):  # Упростили проверку
             if any(e["entity"] == "affirm" for e in tracker.latest_message.get("entities", [])):
-                suggested = tracker.get_slot("suggested_task_number")  # Исправлено: было suggested_task_number
+                suggested = tracker.get_slot("suggested_task_number")
                 dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
         return [SlotSet("wait_affirm", False), SlotSet("notreset_slots", False)]
 
@@ -45,13 +61,16 @@ class ActionResetSlots(Action):
 
     def run(self, dispatcher, tracker, domain):
         if not tracker.get_slot("notreset_slots"):
-#            dispatcher.utter_message(text="Сбрасываем слоты")
+            #dispatcher.utter_message(text="Сбрасываем слоты")
             return [
                 SlotSet(slot, None)
-                for slot in ["task_number", "task_topic", "task_detail", 
-                           "suggested_task_number", "wait_affirm"]
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
             ]
-        return [SlotSet("notreset_slots", None)]
+        else:
+            return [SlotSet("notreset_slots", False)]
 
 # Словарь для числительных
 numerals_dict = {
@@ -76,20 +95,26 @@ numerals_dict = {
 
 
 def extract_task_number(text):
-    # Попытка найти числительное в строке
-    text = text.lower()  # Приводим текст к нижнему регистру
-
-    # Проверка на наличие числительных
+    text = text.lower().strip()  # Приводим к нижнему регистру и убираем пробелы
+    
+    # 1. Проверка на числительные (первое, второе...)
     for numeral, number in numerals_dict.items():
         if numeral in text:
             return number
-
-    # Проверка на наличие чисел в текстах типа "номер 7"
-    match = re.search(r"(номер|задача|задание)\s*(\d+)", text)
+    
+    # 2. Проверка форматов:
+    # - "задание 19"
+    # - "19 задание"
+    # - "номер 19"
+    # - "задача 19"
+    match = re.search(r"(?:номер|задача|задание)\s*(\d+)|(\d+)\s*(?:номер|задача|задание)", text)
     if match:
-        return int(match.group(2))  # Возвращаем число
-
-    # Если числовых данных нет, возвращаем None
+        return int(match.group(1) or match.group(2))  # Возвращаем найденное число
+    
+    # 3. Проверка на просто число (только если оно отдельно)
+    if re.fullmatch(r"\d+", text.strip()):
+        return int(text.strip())
+    
     return None
 
 
@@ -164,8 +189,8 @@ TASK_MAPPING1111 = {
 
 TASK_MAPPING = {
     1: {
-        "task_topic": ["информационные модели", "моделирование"],
-        "task_detail": ["выбрать верный вариант", "определить тип модели", "проанализировать ситуацию"],
+        "task_topic": ["графы", "маршруты", "дорога"],
+        "task_detail": ["определить номера населенных пунктов", "определить длину дороги", "определить сумму дорог"],
         "math": True
     },
     2: {
@@ -202,15 +227,14 @@ TASK_MAPPING = {
         "task_number_3": True
     },
     4: {
-        "task_topic": ["логика", "логические выражения"],
-        "task_detail": ["упростить выражение", "преобразовать логическое выражение", "определить результат выражения"],
-        "logic": True
+        "task_topic": ["кодирование","декодирование","передача информации"],
+        "task_detail": ["закодировать информацию", "декодировать информацию"],
+        "task_number_4": True
     },
     5: {
-        "task_topic": ["таблицы истинности", "логика"],
-        "task_detail": ["найти логическое значение", "указать значение переменной", "определить истинность выражения"],
-        "logic": True,
-        "table_truth": True
+        "task_topic": ["построение алгоритмов", "анализ алгоритмов"],
+        "task_detail": ["найти результат алгоритма", "указать наименьшее число", "указать наибольшее число"],
+        "task_number_5": True
     },
     6: {
         "task_topic": ["исполнитель", "черепашка", "робот", "команды", "маршрут", "перемещение", "движение", "путь", "сетка", "поле", "клетка"],
@@ -231,15 +255,14 @@ TASK_MAPPING = {
         "grid_movement": True
     },
     7: {
-        "task_topic": ["изображения", "звуки", "форматы файлов"],
-        "task_detail": ["определить результат обработки", "выбрать правильный формат", "определить параметры изображения"],
+        "task_topic": ["изображения", "документы" "звуки", "форматы файлов", "хранение"],
+        "task_detail": ["найти объем", "выбрать правильный формат", "найти размер"],
         "data": True
     },
     8: {
-        "task_topic": ["сортировка", "алгоритмы"],
-        "task_detail": ["указать количество операций", "определить количество сравнений", "вычислить количество шагов"],
-        "programming": True,
-        "sorting": True
+        "task_topic": ["комбинаторика", "системы счисления", "кодовые слова", "перестановки", "буквенные комбинации", "последовательности"],
+        "task_detail": ["найти первое слово", "записать слово", "подсчитать варианты", "определить позицию", "найти все комбинации"],
+        "task_number_8": True
     },
     9: {
         "task_topic": [
@@ -279,8 +302,8 @@ TASK_MAPPING = {
         "debugging": True
     },
     11: {
-        "task_topic": ["массивы", "циклы"],
-        "task_detail": ["найти максимальное значение", "вычислить количество элементов", "обработать массив"],
+        "task_topic": ["пароль", "символы", "кодирование паролей"],
+        "task_detail": ["определить объём памяти", "количество байт"],
         "programming": True
     },
     12: {
@@ -304,19 +327,19 @@ TASK_MAPPING = {
         "graph": True
     },
     16: {
-        "task_topic": ["перебор", "рекурсия"],
+        "task_topic": ["обработка последовательностей"],
         "task_detail": ["найти количество решений", "перебрать варианты", "реализовать алгоритм перебора"],
         "programming": True
     },
     17: {
-        "task_topic": ["последовательности", "арифметика"],
-        "task_detail": ["вычислить значение по формуле", "подставить значения", "рассчитать результат"],
-        "math": True
+        "task_topic": ["обработка последовательностей"],
+        "task_detail": ["определить количество чисел", "вывести пары чисел", "сгруппировать элементы по свойству"],
+        "task_number_17": True
     },
     18: {
-        "task_topic": ["электронные таблицы", "формулы"],
-        "task_detail": ["построить формулу", "составить логическое выражение", "определить структуру выражения"],
-        "data": True
+        "task_topic": ["динамическое программирование"],
+        "task_detail": ["найти максимум пути","найти минимум пути"],
+        "task_number_18": True
     },
     19: {
         "task_topic": ["теория игр", "стратегия"],
@@ -342,8 +365,8 @@ TASK_MAPPING = {
         "os_concept": True
     },
     23: {
-        "task_topic": ["анализ алгоритмов", "оценка сложности"],
-        "task_detail": ["выбрать правильный фрагмент", "определить корректный алгоритм", "сравнить алгоритмы"],
+        "task_topic": ["последовательность команд", "траектория"],
+        "task_detail": ["количество программ"],
         "math": True
     },
     24: {
@@ -479,7 +502,7 @@ class ActionIdentifyTaskNumber(Action):
 
         dispatcher.utter_message(text=f"Распозналось: number: {task_number}, topic: {task_topic}, detail: {task_detail}, flags: {list(flag_entities)}")
         dispatcher.utter_message(text=f"Наиболее подходящие задания по описанию: {top_matches}")
-
+        dispatcher.utter_message(text=f"Распозналось {int_task_number}.")
         if int_task_number is not None and not (task_detail or task_topic or flag_entities):
             dispatcher.utter_message(text=f"Вы указали задание номер {int_task_number}.")
             return [SlotSet("task_number", int_task_number)]
@@ -495,35 +518,14 @@ class ActionIdentifyTaskNumber(Action):
 
         if int_task_number is None and len(top_matches) == 1:
             dispatcher.utter_message(text=f"Похоже, вы имеете в виду задание номер {top_matches[0]}. Подтвердите, пожалуйста.")
-            return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", 1), SlotSet("notreset_slots", 1)]
+            #dispatcher.utter_message(text="Я тут")
+            return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", True), SlotSet("notreset_slots", True)]
 
         if int_task_number is None and len(top_matches) > 1:
             options = ", ".join(str(n) for n in top_matches)
             dispatcher.utter_message(
                 text=f"По описанию подходит несколько заданий: {options}. Уточните, пожалуйста, какое вы имеете в виду.")
             return [SlotSet("suggested_task_number", top_matches[0])]
-
-        dispatcher.utter_message(response="utter_cannot_understand_task")
-        return []
-
-
-class ActionConfirmSuggestedTask(Action):
-    def name(self) -> Text:
-        return "action_confirm_suggested_task"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        suggested = tracker.get_slot("suggested_task_number")
-
-        if tracker.latest_message.get("intent", {}).get("name") == "affirm" and suggested:
-            dispatcher.utter_message(text=f"Отлично, работаем с заданием номер {suggested}.")
-            return [SlotSet("task_number", suggested), SlotSet("suggested_task_number", None)]
-
-        elif tracker.latest_message.get("intent", {}).get("name") == "deny":
-            dispatcher.utter_message(response="utter_ask_task_disambiguation")
-            return [SlotSet("suggested_task_number", None)]
 
         dispatcher.utter_message(response="utter_cannot_understand_task")
         return []
