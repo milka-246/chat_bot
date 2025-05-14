@@ -4,71 +4,42 @@ stories:
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
-    - slot_was_set:
-        - suggested_task_number:
-        - wait_affirm: True
-        - notreset_slots: True
-        - task_number: null
     - intent: iaffirm
     - slot_was_set:
-        - suggested_task_number:
         - wait_affirm: True
-        - notreset_slots: True
-        - task_number: null
     - action: action_processing_affirm
-    - slot_was_set:
-        - wait_affirm: False
-        - notreset_slots: False
     - action: action_reset_slots
-    - slot_was_set:
-        - suggested_task_number: null
 
 - story: Пользователь что-то подтверждает вне контекста
   steps:
     - intent: iaffirm
-    - action: action_reset_slots
     - slot_was_set:
-        - suggested_task_number: null
-        - wait_affirm: False
-        - notreset_slots: False
+        - wait_affirm: False 
     - action: utter_iaffirm
+    - action: action_reset_slots
 
 - story: Пользователь что-то отрицает вне контекста
   steps:
     - intent: disagree
-    - action: action_reset_slots
     - slot_was_set:
-        - suggested_task_number: null
-        - wait_affirm: False
-        - notreset_slots: False
+        - wait_affirm: False 
     - action: utter_disagree
+    - action: action_reset_slots
 
 - story: Пользователь спрашивает о задаче (с подтверждением) и отрицает
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
-    - slot_was_set:
-        - suggested_task_number:
-        - wait_affirm: True
-        - notreset_slots: True
-        - task_number: null
     - intent: disagree
-    - action: action_reset_slots
     - slot_was_set:
-        - suggested_task_number: null
-        - wait_affirm: False
-        - notreset_slots: False
+        - wait_affirm: True
     - action: utter_cannot_understand_task
+    - action: action_reset_slots
 
 - story: Пользователь спрашивает о задаче (без подтверждения)
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
     - slot_was_set:
-        - suggested_task_number: null
-        - task_number: True
-    - action: action_reset_slots
-    - slot_was_set:
-        - suggested_task_number: null
         - wait_affirm: False
-        - notreset_slots: False
+    - action: action_reset_slots
