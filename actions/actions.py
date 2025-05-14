@@ -126,12 +126,12 @@ def get_matching_task_numbers(normalized_detail, normalized_topic, flag_entities
             if isinstance(value, list):
                 norm_value = normalize_words(value)
                 if key == "task_detail":
-                    score += sum(1 for v in norm_value if v in normalized_detail)
+                    score += sum(2 for v in norm_value if v in normalized_detail)
                 elif key == "task_topic":
-                    score += sum(1 for v in norm_value if v in normalized_topic)
+                    score += sum(2 for v in norm_value if v in normalized_topic)
             elif value is True:
                 if key in flag_entities:
-                    score += 2                  #за присутствующий флаг я увеличу на 2
+                    score += 5                  #за присутствующий флаг я увеличу на 2
         task_scores.append((number, score))
 
     if not task_scores:
@@ -156,37 +156,6 @@ def get_matching_task_numbers(normalized_detail, normalized_topic, flag_entities
     return top_matches
 
 
-
-TASK_MAPPING1111 = {
-    1: {"task_topic": ["поиск"], "task_detail": ["таблица"]},
-    2: {"logic": True, "task_detail": ["таблица истинности"]},
-    3: {"encoding": True, "task_detail": ["длина кода", "избыточность"]},
-    4: {"encoding": True, "task_detail": ["равномерное", "неравномерное"]},
-    5: {"num_system": True, "task_detail": ["арифметика"]},
-    6: {"programming": True, "task_detail": ["анализ переменных"]},
-    7: {"files": True, "task_detail": ["обработка строк"]},
-    8: {"data_structure": True, "task_detail": ["трассировка"]},
-    9: {"coordinates": True},
-    10: {"number_theory": True},
-    11: {"graph_algorithm": True, "task_detail": ["кратчайший путь"]},
-    12: {"graph_algorithm": True, "task_detail": ["количество маршрутов"]},
-    13: {"graph_algorithm": True, "task_detail": ["оптимизация"]},
-    14: {"num_system": True, "number_theory": True},
-    15: {"logic": True, "task_detail": ["сложные логические формулы"]},
-    16: {"os_concept": True},
-    17: {"math_concept": True, "bruteforce": True},
-    18: {"encoding": True, "task_detail": ["скорость передачи"]},
-    19: {"game": True, "task_detail": ["один ход"]},
-    20: {"game": True, "task_detail": ["2 хода"]},
-    21: {"game": True, "task_detail": ["стратегия"]},
-    22: {"programming": True, "sorting": True},
-    23: {"dynamic_programming": True},
-    24: {"programming": True, "task_detail": ["массив", "цикл"]},
-    25: {"debugging": True},
-    26: {"conditional_logic": True},
-    27: {"bruteforce": True, "task_detail": ["все случаи"]},
-}
-
 TASK_MAPPING = {
     1: {
         "task_topic": ["графы", "маршруты", "дорога"],
@@ -195,10 +164,7 @@ TASK_MAPPING = {
         "task_number_1": True
     },
     2: {
-        "task_topic": ["логические схемы", "таблицы истинности"],
-        "task_detail": ["определить соответствие", "выбрать схему", "найти правильный вариант"],
-        "logic": True,
-        "table_truth": True
+        
     },
     3: {
         "task_topic": [
@@ -284,10 +250,7 @@ TASK_MAPPING = {
         "task_number_9": True
     },
     10: {
-        "task_topic": ["трассировка", "отладка", "исполнители", "после выполнения программы", "состояние переменной"],
-        "task_detail": ["проследить выполнение программы", "указать вывод программы", "определить значение после выполнения"],
-        "programming": True,
-        "task_number_10": True
+        
     },
     11: {
         "task_topic": ["пароль", "символы", "кодирование паролей"],
@@ -301,24 +264,16 @@ TASK_MAPPING = {
         "data": True
     },
     13: {
-        "task_topic": ["координаты", "адресация"],
-        "task_detail": ["вычислить адрес устройства", "определить номер ячейки", "найти адрес элемента"],
-        "coordinates": True
+       
     },
     14: {
-        "task_topic": ["маршруты", "графы"],
-        "task_detail": ["найти кратчайший путь", "определить длину маршрута", "вычислить расстояние"],
-        "graph": True
+        
     },
     15: {
-        "task_topic": ["графы", "деревья"],
-        "task_detail": ["найти количество путей", "рассчитать маршруты", "определить количество маршрутов"],
-        "graph": True
+        
     },
     16: {
-        "task_topic": ["обработка последовательностей"],
-        "task_detail": ["найти количество решений", "перебрать варианты", "реализовать алгоритм перебора"],
-        "programming": True
+        
     },
     17: {
         "task_topic": ["обработка последовательностей"],
@@ -471,7 +426,7 @@ class ActionIdentifyTaskNumber(Action):
 
         dispatcher.utter_message(text=f"Распозналось: number: {task_number}, topic: {task_topic}, detail: {task_detail}, flags: {list(flag_entities)}")
         dispatcher.utter_message(text=f"Наиболее подходящие задания по описанию: {top_matches}")
-        dispatcher.utter_message(text=f"Распозналось {int_task_number}.")
+        #.utter_message(text=f"Распозналось {int_task_number}.")
         if int_task_number is not None and not (task_detail or task_topic or flag_entities):
             dispatcher.utter_message(text=f"Вы указали задание номер {int_task_number}.")
             return [SlotSet("task_number", int_task_number)]
