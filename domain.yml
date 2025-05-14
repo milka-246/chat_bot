@@ -39,22 +39,24 @@ entities:
   - conditional_logic
   - table_truth
   - uniformity
-<<<<<<< HEAD
+  - task_number_1
+  - task_number_3
   - task_number_4
   - task_number_5
-  - task_number_8
-  - task_number_17
-  - task_number_18
-=======
-  - task_number_1
   - task_number_6
   - task_number_7
+  - task_number_8
+  - task_number_9
   - task_number_11
->>>>>>> ca23e9c3d9c8daa2819d1c25dce6ab7fd3fe1a47
+  - task_number_17
+  - task_number_18
   - task_number_19
   - task_number_20
   - task_number_21
   - task_number_23
+  - task_number_24
+  - task_number_26
+  - task_number_27
   - affirm
   - dis
   - rang
@@ -111,6 +113,48 @@ slots:
     influence_conversation: true
     mappings:
       - type: custom
+
+  task_number_3: 
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_3
+
+  task_number_6: 
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_6
+
+  task_number_9:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_9
+
+  task_number_24:
+      type: text
+      influence_conversation: true
+      mappings:
+        - type: from_entity
+          entity: task_number_24
+
+  task_number_26:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_26
+
+  task_number_27:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: task_number_26
 
 responses:
 
