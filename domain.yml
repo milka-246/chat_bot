@@ -35,7 +35,6 @@ entities:
   - dynamic_programming
   - redundancy
   - sorting
-  - debugging
   - conditional_logic
   - table_truth
   - uniformity
@@ -113,48 +112,6 @@ slots:
     influence_conversation: true
     mappings:
       - type: custom
-
-  task_number_3: 
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: task_number_3
-
-  task_number_6: 
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: task_number_6
-
-  task_number_9:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: task_number_9
-
-  task_number_24:
-      type: text
-      influence_conversation: true
-      mappings:
-        - type: from_entity
-          entity: task_number_24
-
-  task_number_26:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: task_number_26
-
-  task_number_27:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: task_number_26
 
 responses:
 
