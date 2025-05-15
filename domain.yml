@@ -174,6 +174,7 @@ actions:
   - action_reset_slots
   - action_processing_affirm
   - action_default_fallback
+  - action_cannot_understand_task
 
 session_config:
   session_expiration_time: 60

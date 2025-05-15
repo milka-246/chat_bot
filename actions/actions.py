@@ -60,6 +60,21 @@ class ActionProcessingAffirm(Action):
                 dispatcher.utter_message(text=f"Вы подтвердили {suggested}.")
         return [SlotSet("wait_affirm", False), SlotSet("notreset_slots", False)]
 
+class ActionCannotUnderstandTask(Action):
+    def name(self) -> str:
+        return "action_cannot_understand_task"
+
+    def run(self, dispatcher, tracker, domain):
+        if tracker.get_slot("wait_affirm"):
+            dispatcher.utter_message(text="Я пока не понял, о каком задании идёт речь. Попробуй уточнить номер или тему.")
+            return [
+                SlotSet(slot, None)
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
+            ]
+
 
 class ActionResetSlots(Action):
     def name(self) -> str:
@@ -67,7 +82,7 @@ class ActionResetSlots(Action):
 
     def run(self, dispatcher, tracker, domain):
         if not tracker.get_slot("notreset_slots"):
-            dispatcher.utter_message(text="Сбрасываем слоты")
+            #dispatcher.utter_message(text="Сбрасываем слоты")
             return [
                 SlotSet(slot, None)
                 for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
@@ -419,7 +434,13 @@ class ActionIdentifyTaskNumber(Action):
         #dispatcher.utter_message(text=f"Распозналось {int_task_number}.")
         if int_task_number is not None and not (task_detail or task_topic or flag_entities):
             dispatcher.utter_message(text=f"Вы указали задание номер {int_task_number}.")
-            return [SlotSet("task_number", int_task_number)]
+            return [
+                SlotSet(slot, None)
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
+            ]
 
         if int_task_number is not None:
             if len(top_matches) == 1 and top_matches[0] == int_task_number:
@@ -428,7 +449,7 @@ class ActionIdentifyTaskNumber(Action):
             elif len(top_matches) > 0 and int_task_number not in top_matches:
                 options = ", ".join(str(n) for n in top_matches)
                 dispatcher.utter_message(text=f"Вы указали номер {int_task_number}, но по описанию похоже на задание(я) {options}. Это оно?")
-                return [SlotSet("suggested_task_number", top_matches[0])]
+                return [SlotSet("suggested_task_number", top_matches[0]), SlotSet("wait_affirm", True), SlotSet("notreset_slots", True)]
 
         if int_task_number is None and len(top_matches) == 1:
             dispatcher.utter_message(text=f"Похоже, вы имеете в виду задание номер {top_matches[0]}. Подтвердите, пожалуйста.")
@@ -439,7 +460,19 @@ class ActionIdentifyTaskNumber(Action):
             options = ", ".join(str(n) for n in top_matches)
             dispatcher.utter_message(
                 text=f"По описанию подходит несколько заданий: {options}. Уточните, пожалуйста, какое вы имеете в виду.")
-            return [SlotSet("suggested_task_number", top_matches[0])]
+            return [
+                SlotSet(slot, None)
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
+            ]
 
         dispatcher.utter_message(response="utter_cannot_understand_task")
-        return []
+        return [
+                SlotSet(slot, None)
+                for slot in ["task_number", "task_topic", "task_detail", "suggested_task_number"]
+            ] + [
+                SlotSet("wait_affirm", False),
+                SlotSet("notreset_slots", False)
+            ]

@@ -33,13 +33,9 @@ stories:
     - intent: disagree
     - slot_was_set:
         - wait_affirm: True
-    - action: utter_cannot_understand_task
-    - action: action_reset_slots
+    - action: action_cannot_understand_task
 
 - story: Пользователь спрашивает о задаче (без подтверждения)
   steps:
     - intent: ask_about_task
     - action: action_identify_task_number
-    - slot_was_set:
-        - wait_affirm: False
-    - action: action_reset_slots
