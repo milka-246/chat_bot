@@ -189,8 +189,7 @@ TASK_MAPPING = {
     },
     3: {
         "task_topic": [
-            "база данных", "базы данных", "таблица", "таблицы", 
-            "реляционная модель", "связанные таблицы", "товар", "магазин", "торговля"
+            "база данных", "реляционная модель", "связанные таблицы", "товар", "магазин", "торговля"
         ],
         "task_detail": [
             "определить количество товара",
@@ -348,7 +347,7 @@ TASK_MAPPING = {
     },
     26: {
         "task_topic": [
-            "заявка", "заявки", "событие", "события", "расписание", "время начала", "время окончания",
+            "заявка", "событие", "расписание", "время начала", "время окончания",
             "отрезки времени", "интервалы", "период", "размещение", "активность", "конференц-зал",
             "входной файл", "выходной файл", "файл данных", "строка файла", "целые числа",
             "список чисел", "диапазон значений", "парные числа", "соседние элементы", "файл"
@@ -428,6 +427,8 @@ class ActionIdentifyTaskNumber(Action):
 
         task_number = tracker.get_slot("task_number")
         int_task_number = extract_task_number(task_number) if task_number else None
+        if int_task_number is not None and (not isinstance(int_task_number, int) or int_task_number < 1 or int_task_number > 27):
+            int_task_number = None
 
         dispatcher.utter_message(text=f"Распозналось: number: {task_number}, topic: {task_topic}, detail: {task_detail}, flags: {list(flag_entities)}")
         dispatcher.utter_message(text=f"Наиболее подходящие задания по описанию: {top_matches}")

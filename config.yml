@@ -1,68 +1,47 @@
 language: ru
 
 pipeline:
-  - name: WhitespaceTokenizer
-    intent_tokenization_flag: true
-    token_pattern: "(?u)\\b\\w+\\b"
+- name: WhitespaceTokenizer
+  intent_tokenization_flag: true
 
-  - name: LexicalSyntacticFeaturizer
+- name: LexicalSyntacticFeaturizer
 
-  - name: CountVectorsFeaturizer
-    analyzer: "word"
-    min_ngram: 1
-    max_ngram: 2
-    token_pattern: "(?u)\\b\\w+\\b"
+- name: CountVectorsFeaturizer
+  analyzer: "word"
+  min_ngram: 1
+  max_ngram: 2
 
-  - name: DIETClassifier
-    epochs: 200
-    learning_rate: 0.001
-    hidden_layers_sizes:
-      text: [256, 128]
-    embedding_dimension: 128
-    constrain_similarities: true
-    use_masked_language_model: true
-    random_seed: 42
-    intent_classification:
-      confidence_threshold: 0.75
-    entity_recognition:
-      confidence_threshold: 0.85
+- name: DIETClassifier
+  epochs: 150
+  intent_classification:
+    confidence_threshold: 0.7
+  entity_recognition:
+    confidence_threshold: 0.75
 
-  - name: EntitySynonymMapper
-
-  - name: ResponseSelector
-    epochs: 100
-    retrieval_intent: "faq"
-
-  - name: FallbackClassifier
-    threshold: 0.45
-    ambiguity_threshold: 0.15
-    nlu_threshold: 0.7
+- name: FallbackClassifier
+  threshold: 0.35
+  ambiguity_threshold: 0.15
 
 policies:
-  - name: MemoizationPolicy
-    max_history: 5
+- name: MemoizationPolicy
+  max_history: 3
 
-  - name: RulePolicy
-    core_fallback_threshold: 0.4
-    core_fallback_action_name: "action_default_fallback"
-    enable_fallback_prediction: true
+- name: RulePolicy
+  core_fallback_threshold: 0.45
+  core_fallback_action_name: "action_default_fallback"
+  enable_fallback_prediction: false    # Ключевой параметр против зацикливания
 
-  - name: TEDPolicy
-    max_history: 8
-    epochs: 150
-    learning_rate: 0.001
-    hidden_layers_sizes:
-      text: [256, 128]
-    confidence_threshold: 0.8
+- name: TEDPolicy
+  max_history: 5
+  epochs: 200
+  confidence_threshold: 0.6
 
-# Настройки аугментации данных
-augmentation_factor: 10  # Увеличение количества обучающих примеров в 10 раз
 augmentation:
-  - "random_word_swap"  # Случайная замена слов синонимами
-  - "random_word_drop"  # Случайное удаление неключевых слов
-  - "random_word_insert"  # Вставка случайных слов
-  - "random_word_char_swap"  # Перестановка символов в словах
+- "random_word_swap"
+- "random_word_drop"
+- "random_word_insert"
 
-# Дополнительные настройки
-recipe: default.v1
-assistant_id: 20250513-101108-inscribed-house
+augmentation_factor: 20
+
+config_version: 3.1
+assistant_id: 20250515-211413-tempered-bakery
